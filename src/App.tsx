@@ -1005,25 +1005,38 @@ function LandingPage({ filters, setFilters, onSearch }: {
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-emerald-100 px-4 py-2 rounded-full mb-4">
-            <Plane className="w-5 h-5 text-emerald-600" />
-            <span className="text-sm font-semibold text-emerald-700">UmrohKu</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Cari Paket Umroh<br />
-            <span className="text-emerald-600">Terbaik & Terpercaya</span>
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Temukan paket umroh sesuai kebutuhan Anda dari ratusan travel terpercaya di seluruh Indonesia
-          </p>
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
+        <div className="relative max-w-7xl mx-auto px-4 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full mb-6">
+              <Plane className="w-6 h-6 text-white" />
+              <span className="text-lg font-semibold text-white">UmrohKu</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              Wujudkan Ibadah<br />
+              <span className="text-emerald-200">Impian Anda</span>
+            </h1>
+            <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
+              Temukan paket umroh terbaik dari travel terpercaya di seluruh Indonesia
+            </p>
+          </div>
+        </div>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+      {/* Search Form */}
+      <div className="max-w-5xl mx-auto px-4 -mt-12 relative z-10 pb-12">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100">
           {/* 1. Tanggal Keberangkatan */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">📅 Tanggal Keberangkatan</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Calendar className="w-4 h-4 text-emerald-600" />
+              Tanggal Keberangkatan
+            </label>
             <DateRangePicker
               startDate={filters.departureDateStart}
               endDate={filters.departureDateEnd}
@@ -1035,7 +1048,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 2. Durasi Perjalanan */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">⏱️ Durasi Perjalanan</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Clock className="w-4 h-4 text-emerald-600" />
+              Durasi Perjalanan
+            </label>
             <MultiSelect
               options={[
                 { value: '3-8', label: '3-8 Hari', highlight: true },
@@ -1054,7 +1070,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 3. Tipe Penerbangan */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">✈️ Tipe Penerbangan</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Plane className="w-4 h-4 text-emerald-600" />
+              Tipe Penerbangan
+            </label>
             <FlightTypeSelector
               flightTypes={filters.flightTypes}
               onChange={ft => setFilters(f => ({ ...f, flightTypes: ft }))}
@@ -1063,7 +1082,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 4. Pilihan Bandara */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">🗺️ Pilihan Bandara</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <MapPin className="w-4 h-4 text-emerald-600" />
+              Pilihan Bandara
+            </label>
             <div className="space-y-3">
               <div>
                 <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛫 Bandara Berangkat</label>
@@ -1096,7 +1118,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 5. Maskapai Penerbangan */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">🛩️ Maskapai Penerbangan</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Plane className="w-4 h-4 text-emerald-600" />
+              Maskapai Penerbangan
+            </label>
             <SearchableMultiSelect
               options={airlines.map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }))}
               selected={filters.aircrafts}
@@ -1108,7 +1133,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 6. Nama Travel */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">🏢 Nama Travel</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Building2 className="w-4 h-4 text-emerald-600" />
+              Nama Travel
+            </label>
             <TravelSelect
               selected={filters.travelBrands}
               onChange={val => setFilters(f => ({ ...f, travelBrands: val }))}
@@ -1117,7 +1145,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 7. Hotel Makkah */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">🕋 Hotel Makkah</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Building2 className="w-4 h-4 text-emerald-600" />
+              Hotel Makkah
+            </label>
             <HotelFilter
               label="🕋 Hotel Makkah"
               hotel={filters.makkahHotel}
@@ -1128,7 +1159,10 @@ function LandingPage({ filters, setFilters, onSearch }: {
 
           {/* 8. Hotel Madinah */}
           <div>
-            <label className="text-sm font-semibold text-gray-700 mb-2 block">🕌 Hotel Madinah</label>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <Building2 className="w-4 h-4 text-emerald-600" />
+              Hotel Madinah
+            </label>
             <HotelFilter
               label="🕌 Hotel Madinah"
               hotel={filters.madinahHotel}
@@ -1137,13 +1171,16 @@ function LandingPage({ filters, setFilters, onSearch }: {
             />
           </div>
 
-          <button
-            onClick={onSearch}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-xl font-bold text-lg hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-          >
-            <Search className="w-5 h-5" />
-            Cari Paket Umroh
-          </button>
+          {/* Search Button */}
+          <div className="pt-4">
+            <button
+              onClick={onSearch}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3 transform hover:scale-[1.02]"
+            >
+              <Search className="w-5 h-5" />
+              Cari Paket Umroh
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1174,32 +1211,36 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Bar */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-md">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 h-1"></div>
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-4">
-              <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition">
-                <ArrowUpDown className="w-3.5 h-3.5 rotate-90" />
+              <button onClick={onBack} className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm bg-emerald-50 px-4 py-2 rounded-lg hover:bg-emerald-100 transition-all shadow-sm hover:shadow">
+                <ArrowUpDown className="w-4 h-4 rotate-90" />
                 <span className="hidden sm:inline">Ubah Pencarian</span>
               </button>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">U</span>
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Plane className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-gray-900 hidden sm:inline">UmrohKu</span>
+                <span className="font-bold text-gray-900 text-lg hidden sm:inline">UmrohKu</span>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-500 font-medium">Live</span>
+                <span className="text-xs text-gray-700 font-medium">Live</span>
               </div>
-              <span className="text-sm text-gray-600">
-                <span className="font-bold text-emerald-600 text-lg">{totalResults}</span> paket ditemukan
-              </span>
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-2 rounded-lg border border-emerald-200">
+                <span className="text-sm text-gray-700">
+                  <span className="font-bold text-emerald-600 text-xl">{totalResults}</span>
+                  <span className="ml-1 text-gray-600">paket ditemukan</span>
+                </span>
+              </div>
               <button
                 onClick={() => setShowMobileFilters(!showMobileFilters)}
-                className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50"
+                className="lg:hidden flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all shadow-sm hover:shadow"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filter
@@ -1208,7 +1249,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
           </div>
 
           {/* Quick Filters Bar */}
-          <div className="hidden lg:flex items-center gap-2 flex-wrap">
+          <div className="hidden lg:flex items-center gap-2 flex-wrap pt-2">
             <QuickFilter label="Durasi" value={filters.travelDays.length > 0 ? `${filters.travelDays.length} pilihan` : '-'} />
             <QuickFilter label="Tanggal" value={filters.departureDateStart ? `${formatDateShort(filters.departureDateStart)} - ${formatDateShort(filters.departureDateEnd)}` : '-'} />
             <QuickFilter label="Penerbangan" value={getTransitLabel(filters.flightTypes)} />
@@ -1237,15 +1278,17 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                 </button>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm p-4 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-                  <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-emerald-600" />
+              <div className="bg-white rounded-2xl shadow-lg p-5 space-y-5 border border-gray-100">
+                <div className="flex items-center justify-between pb-4 border-b-2 border-emerald-100">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg">
+                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                      <Filter className="w-4 h-4 text-white" />
+                    </div>
                     Filter Pencarian
                   </h3>
                   <button
                     onClick={handleResetFilters}
-                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+                    className="px-4 py-2 text-sm text-emerald-600 hover:text-white hover:bg-emerald-600 rounded-lg transition-all font-medium border border-emerald-200 hover:border-emerald-600"
                     title="Reset semua filter"
                   >
                     Reset
@@ -1350,9 +1393,11 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                 </div>
 
                 {/* Hotel Filters */}
-                <div className="border-t border-gray-100 pt-6">
+                <div className="border-t-2 border-emerald-100 pt-5">
                   <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-emerald-600" />
+                    <div className="w-6 h-6 bg-emerald-100 rounded-md flex items-center justify-center">
+                      <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                    </div>
                     Penginapan
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1371,12 +1416,12 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-5 border-t-2 border-emerald-100">
                   <div className="flex gap-3 justify-center">
-                      <button onClick={handleResetFilters} className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                      <button onClick={handleResetFilters} className="px-6 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-400 transition-all">
                         Reset Filter
                       </button>
-                      <button onClick={onBack} className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition">
+                      <button onClick={onBack} className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-sm font-medium hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg">
                         Ubah Pencarian
                       </button>
                   </div>
@@ -1388,13 +1433,13 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
           {/* Main Content */}
           <main className="flex-1">
             {/* Sort Bar */}
-            <div className="bg-white rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Urutkan:</span>
+            <div className="bg-white rounded-2xl shadow-lg p-5 mb-5 flex items-center justify-between border border-gray-100">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-700">Urutkan:</span>
                 <select
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value as SortOption)}
-                  className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+                  className="text-sm border-2 border-emerald-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-medium text-gray-800 bg-emerald-50 hover:bg-emerald-100 transition-all cursor-pointer"
                 >
                   <option value="price-asc">Harga Terendah</option>
                   <option value="price-desc">Harga Tertinggi</option>
@@ -1402,25 +1447,28 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                   <option value="days">Durasi Terpendek</option>
                 </select>
               </div>
-              <span className="text-sm text-gray-500">
-                Menampilkan <span className="font-bold text-emerald-600">{results.length}</span> dari {totalResults} paket
-              </span>
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-2.5 rounded-lg border border-emerald-200">
+                <span className="text-sm text-gray-700 font-medium">
+                  Menampilkan <span className="font-bold text-emerald-600 text-lg">{results.length}</span>
+                  <span className="ml-1 text-gray-600">dari {totalResults} paket</span>
+                </span>
+              </div>
             </div>
 
             {/* Results */}
             {results.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-gray-400" />
+              <div className="bg-white rounded-2xl shadow-lg p-16 text-center border border-gray-100">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                  <Search className="w-10 h-10 text-emerald-600" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Tidak ada paket ditemukan</h3>
-                <p className="text-gray-600 mb-4">Coba ubah filter pencarian Anda</p>
-                <button onClick={handleResetFilters} className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Tidak ada paket ditemukan</h3>
+                <p className="text-gray-600 mb-6 text-base">Coba ubah filter pencarian Anda</p>
+                <button onClick={handleResetFilters} className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg text-sm font-medium hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl">
                   Reset Filter
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {results.map(pkg => (
                   <PackageCard key={pkg.id} pkg={pkg} />
                 ))}
@@ -1682,9 +1730,9 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
 // ============ HELPER COMPONENTS ============
 function QuickFilter({ label, value }: { label: string; value: string }) {
   return (
-    <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-      <span className="text-xs text-emerald-600 font-medium">{label}: </span>
-      <span className="text-xs text-emerald-800 font-bold">{value}</span>
+    <div className="px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl hover:border-emerald-300 hover:shadow-sm transition-all cursor-default">
+      <span className="text-xs text-emerald-700 font-semibold">{label}: </span>
+      <span className="text-xs text-emerald-900 font-bold">{value}</span>
     </div>
   );
 }
@@ -1782,86 +1830,95 @@ function PackageCard({ pkg }: { pkg: Package }) {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
-        <div className="p-5">
-          <div className="flex items-start justify-between mb-3">
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 transform hover:-translate-y-1">
+        {/* Card Header with Gradient */}
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
+          <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{pkg.travelBrand}</span>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-white bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">{pkg.travelBrand}</span>
                 {pkg.promo && (
-                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">PROMO</span>
+                  <span className="text-xs font-bold text-white bg-red-500 px-3 py-1 rounded-full animate-pulse">PROMO</span>
                 )}
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Paket Umroh {pkg.travelDays} Hari</h3>
+              <h3 className="text-xl font-bold text-white">Paket Umroh {pkg.travelDays} Hari</h3>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setLiked(!liked)}
-                className={`p-2 rounded-lg transition ${liked ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                className={`p-2 rounded-lg transition-all ${liked ? 'bg-white text-red-500' : 'bg-white/20 text-white hover:bg-white/30'} backdrop-blur-sm`}
               >
                 <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
               </button>
-              <button className="p-2 bg-gray-50 text-gray-400 hover:bg-gray-100 rounded-lg transition">
+              <button className="p-2 bg-white/20 text-white hover:bg-white/30 rounded-lg transition-all backdrop-blur-sm">
                 <Share2 className="w-5 h-5" />
               </button>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="bg-gray-50 p-2.5 rounded-lg">
-              <p className="text-xs text-gray-500 mb-0.5">📅 Berangkat</p>
+        <div className="p-5">
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-3 rounded-xl border border-emerald-100">
+              <p className="text-xs text-emerald-700 mb-1 font-medium">📅 Berangkat</p>
               <p className="text-sm font-bold text-gray-900">{new Date(pkg.departureDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
             </div>
-            <div className="bg-gray-50 p-2.5 rounded-lg">
-              <p className="text-xs text-gray-500 mb-0.5">⏱️ Durasi</p>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-3 rounded-xl border border-blue-100">
+              <p className="text-xs text-blue-700 mb-1 font-medium">⏱️ Durasi</p>
               <p className="text-sm font-bold text-gray-900">{pkg.travelDays} Hari</p>
             </div>
-            <div className="bg-gray-50 p-2.5 rounded-lg">
-              <p className="text-xs text-gray-500 mb-0.5">✈️ Penerbangan</p>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-3 rounded-xl border border-purple-100">
+              <p className="text-xs text-purple-700 mb-1 font-medium">✈️ Penerbangan</p>
               <p className="text-sm font-bold text-gray-900 truncate">{getTransitLabel()}</p>
             </div>
-            <div className="bg-gray-50 p-2.5 rounded-lg">
-              <p className="text-xs text-gray-500 mb-0.5">🛫 Bandara</p>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-3 rounded-xl border border-amber-100">
+              <p className="text-xs text-amber-700 mb-1 font-medium">🛫 Bandara</p>
               <p className="text-sm font-bold text-gray-900">{pkg.airportCode} - {pkg.airport}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="border border-gray-200 p-3 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">🕋 Hotel Makkah</p>
-              <p className="text-sm font-bold text-gray-900">{pkg.makkahHotel.name}</p>
-              <p className="text-xs text-gray-600">{'⭐'.repeat(parseInt(pkg.makkahHotel.stars))} • {pkg.makkahHotel.distance}m dari Haram</p>
+          {/* Hotel Info */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="border-2 border-emerald-200 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-white hover:border-emerald-300 transition-all">
+              <p className="text-xs text-emerald-700 mb-2 font-semibold">🕋 Hotel Makkah</p>
+              <p className="text-sm font-bold text-gray-900 mb-1">{pkg.makkahHotel.name}</p>
+              <p className="text-xs text-gray-600">{'⭐'.repeat(parseInt(pkg.makkahHotel.stars))} • {pkg.makkahHotel.distance}m</p>
             </div>
-            <div className="border border-gray-200 p-3 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">🕌 Hotel Madinah</p>
-              <p className="text-sm font-bold text-gray-900">{pkg.madinahHotel.name}</p>
-              <p className="text-xs text-gray-600">{'⭐'.repeat(parseInt(pkg.madinahHotel.stars))} • {pkg.madinahHotel.distance}m dari Nabawi</p>
+            <div className="border-2 border-blue-200 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-white hover:border-blue-300 transition-all">
+              <p className="text-xs text-blue-700 mb-2 font-semibold">🕌 Hotel Madinah</p>
+              <p className="text-sm font-bold text-gray-900 mb-1">{pkg.madinahHotel.name}</p>
+              <p className="text-xs text-gray-600">{'⭐'.repeat(parseInt(pkg.madinahHotel.stars))} • {pkg.madinahHotel.distance}m</p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          {/* Rating and Price */}
+          <div className="flex items-center justify-between pt-5 border-t-2 border-emerald-100">
             <div>
-              <div className="flex items-center gap-1 mb-1">
-                <Star className="w-4 h-4 text-amber-400 fill-current" />
-                <span className="text-sm font-bold text-gray-900">{pkg.rating}</span>
-                <span className="text-xs text-gray-500">/ 5.0</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg">
+                  <Star className="w-4 h-4 text-amber-500 fill-current" />
+                  <span className="text-sm font-bold text-gray-900">{pkg.rating}</span>
+                  <span className="text-xs text-gray-600">/ 5.0</span>
+                </div>
               </div>
-              <p className="text-xs text-gray-500">{pkg.aircraft}</p>
+              <p className="text-xs text-gray-600 font-medium">{pkg.aircraft}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500 mb-1">Harga per orang</p>
-              <p className="text-2xl font-bold text-emerald-600">{formatPrice(pkg.price)}</p>
+              <p className="text-xs text-gray-600 mb-1 font-medium">Harga per orang</p>
+              <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{formatPrice(pkg.price)}</p>
             </div>
           </div>
 
-          <div className="flex gap-2 mt-4">
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-5">
             <button
               onClick={() => setShowInfo(true)}
-              className="flex-1 px-4 py-2.5 border border-emerald-600 text-emerald-600 rounded-lg text-sm font-medium hover:bg-emerald-50 transition"
+              className="flex-1 px-4 py-3 border-2 border-emerald-600 text-emerald-600 rounded-xl text-sm font-bold hover:bg-emerald-50 transition-all hover:shadow-md"
             >
               Detail Paket
             </button>
-            <button className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+            <button className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transform hover:scale-105">
               <Phone className="w-4 h-4" />
               Hubungi Travel
             </button>
