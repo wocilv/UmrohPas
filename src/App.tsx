@@ -444,7 +444,7 @@ function TravelInfoPopup({ brandName, onClose }: { brandName: string; onClose: (
   );
 }
 
-// ============ DATE RANGE PICKER ============
+// ============ DATE RANGE PICKER (POPUP 2 BULAN) ============
 function DateRangePicker({ startDate, endDate, onStartDateChange, onEndDateChange, travelDays }: {
   startDate: string;
   endDate: string;
@@ -452,26 +452,40 @@ function DateRangePicker({ startDate, endDate, onStartDateChange, onEndDateChang
   onEndDateChange: (d: string) => void;
   travelDays: string[];
 }) {
-  const [currentMonth, setCurrentMonth] = useState(() => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [baseMonth, setBaseMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [selectingStart, setSelectingStart] = useState(true);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
-
   const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
   const formatDate = (date: Date) => {
     return date.toISOString().split('T')[0];
   };
 
-  const handleDateClick = (day: number) => {
-    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
+
+  const handleDateClick = (year: number, month: number, day: number) => {
+    const clickedDate = new Date(year, month, day);
     if (clickedDate < today) return;
 
     const dateStr = formatDate(clickedDate);
@@ -488,104 +502,188 @@ function DateRangePicker({ startDate, endDate, onStartDateChange, onEndDateChang
         onEndDateChange(dateStr);
       }
       setSelectingStart(true);
+      setIsOpen(false); // Close after selecting both dates
     }
   };
 
   const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    setBaseMonth(new Date(baseMonth.getFullYear(), baseMonth.getMonth() - 1, 1));
   };
 
   const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    setBaseMonth(new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1));
   };
 
-  const isDateSelected = (day: number) => {
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+  const isDateSelected = (year: number, month: number, day: number) => {
+    const date = new Date(year, month, day);
     const dateStr = formatDate(date);
     return dateStr === startDate || dateStr === endDate;
   };
 
-  const isDateInRange = (day: number) => {
+  const isDateInRange = (year: number, month: number, day: number) => {
     if (!startDate || !endDate) return false;
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    const date = new Date(year, month, day);
     const dateStr = formatDate(date);
     return dateStr > startDate && dateStr < endDate;
   };
 
-  const isToday = (day: number) => {
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+  const isToday = (year: number, month: number, day: number) => {
+    const date = new Date(year, month, day);
     return formatDate(date) === formatDate(today);
   };
 
-  const isPast = (day: number) => {
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+  const isPast = (year: number, month: number, day: number) => {
+    const date = new Date(year, month, day);
     return date < today;
   };
 
-  return (
-    <div className="border border-gray-200 rounded-lg p-3 bg-white">
-      <div className="flex items-center justify-between mb-3">
-        <button onClick={prevMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
-          <ChevronLeft className="w-4 h-4 text-gray-600" />
-        </button>
-        <span className="text-sm font-semibold text-gray-800">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </span>
-        <button onClick={nextMonth} className="p-1.5 hover:bg-gray-100 rounded-lg transition">
-          <ChevronRight className="w-4 h-4 text-gray-600" />
-        </button>
-      </div>
+  const renderMonth = (year: number, month: number) => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
 
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
-            {day}
-          </div>
-        ))}
-      </div>
+    return (
+      <div className="flex-1">
+        <div className="text-center mb-3">
+          <h3 className="text-sm font-bold text-gray-800">
+            {monthNames[month]} {year}
+          </h3>
+        </div>
 
-      <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: firstDayOfMonth }).map((_, idx) => (
-          <div key={`empty-${idx}`} />
-        ))}
-        {Array.from({ length: daysInMonth }).map((_, idx) => {
-          const day = idx + 1;
-          const past = isPast(day);
-          const selected = isDateSelected(day);
-          const inRange = isDateInRange(day);
-          const todayDate = isToday(day);
-
-          return (
-            <button
-              key={day}
-              onClick={() => !past && handleDateClick(day)}
-              disabled={past}
-              className={`
-                aspect-square flex items-center justify-center text-xs rounded-lg transition
-                ${past ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-emerald-100 cursor-pointer'}
-                ${selected ? 'bg-emerald-600 text-white font-bold hover:bg-emerald-700' : ''}
-                ${inRange ? 'bg-emerald-100 text-emerald-800' : ''}
-                ${todayDate && !selected ? 'ring-2 ring-emerald-400' : ''}
-              `}
-            >
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map(day => (
+            <div key={day} className="text-center text-xs font-semibold text-gray-500 py-1">
               {day}
-            </button>
-          );
-        })}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      {(startDate || endDate) && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="flex-1 bg-emerald-50 px-2 py-1.5 rounded-lg">
-              <p className="text-emerald-600 font-medium">Berangkat</p>
-              <p className="text-gray-900 font-semibold">{startDate ? new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</p>
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: firstDayOfMonth }).map((_, idx) => (
+            <div key={`empty-${idx}`} />
+          ))}
+          {Array.from({ length: daysInMonth }).map((_, idx) => {
+            const day = idx + 1;
+            const past = isPast(year, month, day);
+            const selected = isDateSelected(year, month, day);
+            const inRange = isDateInRange(year, month, day);
+            const todayDate = isToday(year, month, day);
+
+            return (
+              <button
+                key={day}
+                onClick={() => !past && handleDateClick(year, month, day)}
+                disabled={past}
+                className={`
+                  aspect-square flex items-center justify-center text-sm rounded-lg transition-all
+                  ${past ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-emerald-100 cursor-pointer'}
+                  ${selected ? 'bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md' : ''}
+                  ${inRange ? 'bg-emerald-100 text-emerald-800 font-medium' : ''}
+                  ${todayDate && !selected ? 'ring-2 ring-emerald-400 font-semibold' : ''}
+                `}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Calculate next month
+  const nextMonthDate = new Date(baseMonth.getFullYear(), baseMonth.getMonth() + 1, 1);
+
+  return (
+    <div className="relative" ref={calendarRef}>
+      {/* Trigger Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-left bg-white hover:border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 font-medium mb-0.5">Tanggal Berangkat</p>
+            <p className="text-sm font-semibold text-gray-900">
+              {startDate 
+                ? new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                : 'Pilih tanggal'}
+            </p>
+          </div>
+          <div className="w-px h-10 bg-gray-200 mx-3"></div>
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 font-medium mb-0.5">Tanggal Pulang</p>
+            <p className="text-sm font-semibold text-gray-900">
+              {endDate 
+                ? new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                : 'Pilih tanggal'}
+            </p>
+          </div>
+          <Calendar className="w-5 h-5 text-emerald-600 ml-3" />
+        </div>
+      </button>
+
+      {/* Popup Calendar */}
+      {isOpen && (
+        <div className="absolute z-50 mt-2 bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          {/* Header with navigation */}
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 flex items-center justify-between">
+            <button 
+              onClick={prevMonth}
+              className="p-2 hover:bg-white/20 rounded-lg transition-all"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-white font-bold text-base">
+                {monthNames[baseMonth.getMonth()]} {baseMonth.getFullYear()}
+              </span>
+              <span className="text-white/60">→</span>
+              <span className="text-white font-bold text-base">
+                {monthNames[nextMonthDate.getMonth()]} {nextMonthDate.getFullYear()}
+              </span>
             </div>
-            <span className="text-gray-400">→</span>
-            <div className="flex-1 bg-emerald-50 px-2 py-1.5 rounded-lg">
-              <p className="text-emerald-600 font-medium">Pulang</p>
-              <p className="text-gray-900 font-semibold">{endDate ? new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</p>
+            <button 
+              onClick={nextMonth}
+              className="p-2 hover:bg-white/20 rounded-lg transition-all"
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+          {/* Two calendars side by side */}
+          <div className="p-6 flex gap-6">
+            {renderMonth(baseMonth.getFullYear(), baseMonth.getMonth())}
+            {renderMonth(nextMonthDate.getFullYear(), nextMonthDate.getMonth())}
+          </div>
+
+          {/* Footer with selection info */}
+          <div className="border-t-2 border-gray-100 px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 bg-white px-4 py-3 rounded-xl border-2 border-emerald-200">
+                <p className="text-xs text-emerald-700 font-semibold mb-1">🛫 Berangkat</p>
+                <p className="text-sm font-bold text-gray-900">
+                  {startDate 
+                    ? new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '-'}
+                </p>
+              </div>
+              <div className="text-2xl text-emerald-600">→</div>
+              <div className="flex-1 bg-white px-4 py-3 rounded-xl border-2 border-teal-200">
+                <p className="text-xs text-teal-700 font-semibold mb-1">🛬 Pulang</p>
+                <p className="text-sm font-bold text-gray-900">
+                  {endDate 
+                    ? new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '-'}
+                </p>
+              </div>
             </div>
+            {startDate && endDate && (
+              <div className="mt-3 text-center">
+                <span className="inline-block bg-emerald-600 text-white px-4 py-1.5 rounded-full text-xs font-bold">
+                  {Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1} Hari
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
