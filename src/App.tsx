@@ -1021,6 +1021,7 @@ function LandingPage({ filters, setFilters, onSearch }: {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+          {/* 1. Tanggal Keberangkatan */}
           <div>
             <label className="text-sm font-semibold text-gray-700 mb-2 block">📅 Tanggal Keberangkatan</label>
             <DateRangePicker
@@ -1032,6 +1033,7 @@ function LandingPage({ filters, setFilters, onSearch }: {
             />
           </div>
 
+          {/* 2. Durasi Perjalanan */}
           <div>
             <label className="text-sm font-semibold text-gray-700 mb-2 block">⏱️ Durasi Perjalanan</label>
             <MultiSelect
@@ -1047,6 +1049,91 @@ function LandingPage({ filters, setFilters, onSearch }: {
               onChange={val => setFilters(f => ({ ...f, travelDays: val }))}
               placeholder="Pilih durasi"
               label="Durasi"
+            />
+          </div>
+
+          {/* 3. Tipe Penerbangan */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">✈️ Tipe Penerbangan</label>
+            <FlightTypeSelector
+              flightTypes={filters.flightTypes}
+              onChange={ft => setFilters(f => ({ ...f, flightTypes: ft }))}
+            />
+          </div>
+
+          {/* 4. Pilihan Bandara */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">🗺️ Pilihan Bandara</label>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛫 Bandara Berangkat</label>
+                <SearchableMultiSelect
+                  options={airports.map(apt => ({ value: apt.code, label: `${apt.code} - ${apt.name} (${apt.city})` }))}
+                  selected={filters.airports}
+                  onChange={val => setFilters(f => ({ ...f, airports: val }))}
+                  placeholder="Pilih bandara keberangkatan"
+                  label="Bandara"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛬 Bandara Saudi - Landing & Pulang</label>
+                <SearchableMultiSelect
+                  options={[
+                    { value: 'JED - MED (Makkah Dulu)', label: 'JED - MED (Makkah Dulu)' },
+                    { value: 'MED - JED (Madinah Dulu)', label: 'MED - JED (Madinah Dulu)' },
+                    { value: 'JED - JED (Makkah Dulu)', label: 'JED - JED (Makkah Dulu)' },
+                    { value: 'JED - JED (Madinah Dulu)', label: 'JED - JED (Madinah Dulu)' },
+                    { value: 'Lainnya', label: 'Lainnya' }
+                  ]}
+                  selected={filters.saudiRoutes}
+                  onChange={val => setFilters(f => ({ ...f, saudiRoutes: val }))}
+                  placeholder="Pilih rute Saudi"
+                  label="Rute Saudi"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Maskapai Penerbangan */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">🛩️ Maskapai Penerbangan</label>
+            <SearchableMultiSelect
+              options={airlines.map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }))}
+              selected={filters.aircrafts}
+              onChange={val => setFilters(f => ({ ...f, aircrafts: val }))}
+              placeholder="Pilih maskapai"
+              label="Maskapai"
+            />
+          </div>
+
+          {/* 6. Nama Travel */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">🏢 Nama Travel</label>
+            <TravelSelect
+              selected={filters.travelBrands}
+              onChange={val => setFilters(f => ({ ...f, travelBrands: val }))}
+            />
+          </div>
+
+          {/* 7. Hotel Makkah */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">🕋 Hotel Makkah</label>
+            <HotelFilter
+              label="🕋 Hotel Makkah"
+              hotel={filters.makkahHotel}
+              hotels={makkahHotels}
+              onChange={val => setFilters(f => ({ ...f, makkahHotel: val as Filters['makkahHotel'] }))}
+            />
+          </div>
+
+          {/* 8. Hotel Madinah */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">🕌 Hotel Madinah</label>
+            <HotelFilter
+              label="🕌 Hotel Madinah"
+              hotel={filters.madinahHotel}
+              hotels={madinahHotels}
+              onChange={val => setFilters(f => ({ ...f, madinahHotel: val as Filters['madinahHotel'] }))}
             />
           </div>
 
