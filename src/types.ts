@@ -1,7 +1,12 @@
 export interface Filters {
+  // Tanggal Berangkat (wajib) - rentang tanggal
   departureDateStart: string;
   departureDateEnd: string;
+  
+  // Durasi (wajib) - multi-select
   travelDays: string[];
+  
+  // Tipe Penerbangan - multi-level multi-select
   flightTypes: {
     direct: boolean;
     transit: boolean;
@@ -12,11 +17,18 @@ export interface Filters {
     transitInternationalCityTour: boolean;
     transitInternationalNoCityTour: boolean;
   };
+  
+  // Bandara - multi-select
   airports: string[];
   saudiRoutes: string[];
-  directAircrafts: string[];
-  transitAircrafts: string[];
+  
+  // Maskapai - multi-select
+  aircrafts: string[];
+  
+  // Nama Travel - multi-select
   travelBrands: string[];
+  
+  // Hotel Makkah
   makkahHotel: {
     mode: 'stars' | 'distance' | 'name';
     stars: string[];
@@ -24,6 +36,8 @@ export interface Filters {
     distanceMax: number;
     names: string[];
   };
+  
+  // Hotel Madinah
   madinahHotel: {
     mode: 'stars' | 'distance' | 'name';
     stars: string[];
@@ -98,8 +112,7 @@ export const defaultFilters: Filters = {
   },
   airports: [],
   saudiRoutes: [],
-  directAircrafts: [],
-  transitAircrafts: [],
+  aircrafts: [],
   travelBrands: [],
   makkahHotel: {
     mode: 'stars',

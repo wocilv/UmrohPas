@@ -25,8 +25,6 @@ export const airlines = [
   { name: 'Saudia Airlines', iata: 'SV' },
   { name: 'Garuda Indonesia', iata: 'GA' },
   { name: 'Lion Air', iata: 'JT' },
-  { name: 'Citilink', iata: 'QG' },
-  { name: 'Riyadh Air', iata: 'RX' },
   { name: 'Hainan Airlines', iata: 'HU' },
   { name: 'Oman Air', iata: 'WY' },
   { name: 'Etihad Airways', iata: 'EY' },
@@ -34,14 +32,6 @@ export const airlines = [
   { name: 'Qatar Airways', iata: 'QR' },
   { name: 'IndiGo', iata: '6E' },
   { name: 'Vistara', iata: 'UK' },
-];
-
-export const directFlightAirlines = [
-  'Garuda Indonesia',
-  'Lion Air',
-  'Citilink',
-  'Saudia Airlines',
-  'Riyadh Air',
 ];
 
 export const makkahHotels = [

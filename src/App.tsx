@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Filters, Package, defaultFilters } from './types';
 import { allPackages } from './data/packages';
-import { airports, airlines, directFlightAirlines, makkahHotels, madinahHotels, travelBrands } from './data/constants';
+import { airports, airlines, makkahHotels, madinahHotels } from './data/constants';
 import { travelAgencies } from './data/travelAgencies';
 import { Search, Calendar, Clock, Plane, Building2, MapPin, ChevronDown, Star, Phone, Filter, X, SlidersHorizontal, ArrowUpDown, Check, Heart, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -47,7 +47,7 @@ function SearchableMultiSelect({ options, selected, onChange, placeholder, label
   }, []);
 
   const toggle = (val: string) => {
-    if (disabledValues.includes(val)) return;
+    if (disabledValues.includes(val)) return; // Prevent toggling disabled items
     if (selected.includes(val)) {
       onChange(selected.filter(s => s !== val));
     } else {
@@ -68,6 +68,7 @@ function SearchableMultiSelect({ options, selected, onChange, placeholder, label
     opt.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Separate selected items into active and eliminated
   const activeSelected = selected.filter(val => !disabledValues.includes(val));
   const eliminatedSelected = selected.filter(val => disabledValues.includes(val));
 
@@ -85,6 +86,7 @@ function SearchableMultiSelect({ options, selected, onChange, placeholder, label
       </button>
       {open && (
         <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col">
+          {/* Search Input */}
           <div className="p-2 border-b border-gray-100">
             <input
               type="text"
@@ -95,6 +97,7 @@ function SearchableMultiSelect({ options, selected, onChange, placeholder, label
               autoFocus
             />
           </div>
+          {/* Options List */}
           <div className="overflow-y-auto flex-1">
             {filteredOptions.length === 0 ? (
               <div className="px-3 py-4 text-sm text-gray-500 text-center">
@@ -131,11 +134,14 @@ function SearchableMultiSelect({ options, selected, onChange, placeholder, label
           </div>
         </div>
       )}
+      {/* Show selected tags - separate active and eliminated */}
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-2">
+          {/* Active selections */}
           {activeSelected.map(val => (
             <TagChip key={val} label={getLabel(val)} onRemove={() => removeTag(val)} />
           ))}
+          {/* Eliminated selections (clipboard) */}
           {eliminatedSelected.map(val => (
             <div 
               key={val} 
@@ -346,16 +352,19 @@ function RangeSlider({ min, max, valueMin, valueMax, onChange, suffix }: {
           }
         }}
       >
+        {/* Active range */}
         <div
           className="absolute h-full bg-emerald-500 rounded-full"
           style={{ left: `${minPercent}%`, width: `${maxPercent - minPercent}%` }}
         />
+        {/* Min handle */}
         <div
           className="absolute w-5 h-5 bg-white border-2 border-emerald-600 rounded-full -top-1.5 shadow-md cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           style={{ left: `${minPercent}%`, transform: 'translateX(-50%)' }}
           onMouseDown={(e) => { e.stopPropagation(); setDragging('min'); }}
           onTouchStart={(e) => { e.stopPropagation(); setDragging('min'); }}
         />
+        {/* Max handle */}
         <div
           className="absolute w-5 h-5 bg-white border-2 border-emerald-600 rounded-full -top-1.5 shadow-md cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           style={{ left: `${maxPercent}%`, transform: 'translateX(-50%)' }}
@@ -383,6 +392,7 @@ function TravelInfoPopup({ brandName, onClose }: { brandName: string; onClose: (
         className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-6 rounded-t-2xl">
           <div className="flex items-start justify-between">
             <div>
@@ -608,8 +618,8 @@ function TravelSelect({ selected, onChange }: {
     }
   };
 
-  const filteredBrands = travelBrands.filter(b => 
-    b.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBrands = travelAgencies.filter(b => 
+    b.brandName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -639,19 +649,16 @@ function TravelSelect({ selected, onChange }: {
           <div className="overflow-y-auto flex-1">
             {filteredBrands.map(brand => (
               <label
-                key={brand.name}
+                key={brand.brandName}
                 className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-emerald-50 cursor-pointer border-b border-gray-50 last:border-b-0"
               >
                 <input
                   type="checkbox"
-                  checked={selected.includes(brand.name)}
-                  onChange={() => toggle(brand.name)}
+                  checked={selected.includes(brand.brandName)}
+                  onChange={() => toggle(brand.brandName)}
                   className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                 />
-                <div className="flex-1">
-                  <p className="text-gray-700 font-medium">{brand.name}</p>
-                  <p className="text-xs text-gray-500">{brand.contact} • {brand.phone}</p>
-                </div>
+                <span className="text-gray-700">{brand.brandName}</span>
               </label>
             ))}
           </div>
@@ -693,20 +700,14 @@ function FilterSection({ icon, label, children }: {
   );
 }
 
-// ============ HIERARCHICAL FLIGHT TYPE SELECTOR (with Maskapai) ============
-function FlightTypeSelector({ flightTypes, onChange, directAircrafts, transitAircrafts, onDirectAircraftsChange, onTransitAircraftsChange }: {
+// ============ HIERARCHICAL FLIGHT TYPE SELECTOR ============
+function FlightTypeSelector({ flightTypes, onChange }: {
   flightTypes: Filters['flightTypes'];
   onChange: (ft: Filters['flightTypes']) => void;
-  directAircrafts: string[];
-  transitAircrafts: string[];
-  onDirectAircraftsChange: (val: string[]) => void;
-  onTransitAircraftsChange: (val: string[]) => void;
 }) {
   const [transitExpanded, setTransitExpanded] = useState(false);
   const [domesticExpanded, setDomesticExpanded] = useState(false);
   const [internationalExpanded, setInternationalExpanded] = useState(false);
-  const [directAirlineExpanded, setDirectAirlineExpanded] = useState(false);
-  const [transitAirlineExpanded, setTransitAirlineExpanded] = useState(false);
 
   const toggle = (key: keyof Filters['flightTypes']) => {
     const newFt = { ...flightTypes };
@@ -718,32 +719,11 @@ function FlightTypeSelector({ flightTypes, onChange, directAircrafts, transitAir
   const domesticDisabled = transitDisabled || !flightTypes.transitDomestic;
   const internationalDisabled = transitDisabled || !flightTypes.transitInternational;
 
-  const directAirlineOptions = airlines
-    .filter(al => directFlightAirlines.includes(al.name))
-    .map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }));
-
-  const transitAirlineOptions = airlines.map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }));
-
-  const toggleDirectAirline = (val: string) => {
-    if (directAircrafts.includes(val)) {
-      onDirectAircraftsChange(directAircrafts.filter(s => s !== val));
-    } else {
-      onDirectAircraftsChange([...directAircrafts, val]);
-    }
-  };
-
-  const toggleTransitAirline = (val: string) => {
-    if (transitAircrafts.includes(val)) {
-      onTransitAircraftsChange(transitAircrafts.filter(s => s !== val));
-    } else {
-      onTransitAircraftsChange([...transitAircrafts, val]);
-    }
-  };
-
   return (
     <div className="border border-gray-200 rounded-lg bg-white">
-      <div className="p-3 border-b border-gray-100">
-        <label className="flex items-center gap-2 cursor-pointer">
+      {/* Top row: Langsung and Transit side by side */}
+      <div className="flex items-center gap-2 p-3 border-b border-gray-100">
+        <label className="flex items-center gap-2 cursor-pointer flex-1">
           <input
             type="checkbox"
             checked={flightTypes.direct}
@@ -752,38 +732,7 @@ function FlightTypeSelector({ flightTypes, onChange, directAircrafts, transitAir
           />
           <span className="text-sm font-medium text-gray-700">Langsung</span>
         </label>
-
-        {flightTypes.direct && (
-          <div className="mt-2 ml-6">
-            <button
-              type="button"
-              onClick={() => setDirectAirlineExpanded(!directAirlineExpanded)}
-              className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:text-emerald-800 transition"
-            >
-              <ChevronDown className={`w-3 h-3 transition-transform ${directAirlineExpanded ? 'rotate-0' : '-rotate-90'}`} />
-              Pilih Maskapai ({directAircrafts.length}/{directAirlineOptions.length})
-            </button>
-            {directAirlineExpanded && (
-              <div className="mt-1.5 space-y-1 pl-2 border-l-2 border-emerald-100">
-                {directAirlineOptions.map(opt => (
-                  <label key={opt.value} className="flex items-center gap-2 cursor-pointer py-0.5">
-                    <input
-                      type="checkbox"
-                      checked={directAircrafts.includes(opt.value)}
-                      onChange={() => toggleDirectAirline(opt.value)}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">{opt.label}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="p-3">
-        <label className="flex items-center gap-2 cursor-pointer">
+        <label className="flex items-center gap-2 cursor-pointer flex-1">
           <input
             type="checkbox"
             checked={flightTypes.transit}
@@ -797,135 +746,113 @@ function FlightTypeSelector({ flightTypes, onChange, directAircrafts, transitAir
           />
           <span className="text-sm font-medium text-gray-700">Transit</span>
         </label>
+      </div>
 
-        {flightTypes.transit && transitExpanded && (
-          <div className="mt-2 ml-6 space-y-2 bg-gray-50 rounded-lg p-2.5">
-            <div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setDomesticExpanded(!domesticExpanded)}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
-                >
-                  <ChevronDown className={`w-3 h-3 transition-transform ${domesticExpanded ? 'rotate-0' : '-rotate-90'}`} />
-                </button>
-                <label className="flex items-center gap-2 cursor-pointer flex-1">
+      {/* Collapsible Transit Section */}
+      {flightTypes.transit && transitExpanded && (
+        <div className="p-3 space-y-2 bg-gray-50">
+          {/* Transit Domestik */}
+          <div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setDomesticExpanded(!domesticExpanded)}
+                className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+              >
+                <ChevronDown className={`w-3 h-3 transition-transform ${domesticExpanded ? 'rotate-0' : '-rotate-90'}`} />
+              </button>
+              <label className="flex items-center gap-2 cursor-pointer flex-1">
+                <input
+                  type="checkbox"
+                  checked={flightTypes.transitDomestic}
+                  onChange={() => toggle('transitDomestic')}
+                  className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                />
+                <span className="text-sm text-gray-700">Transit Domestik</span>
+              </label>
+            </div>
+            
+            {/* Sub-options for Domestik */}
+            {flightTypes.transitDomestic && domesticExpanded && (
+              <div className="ml-6 mt-2 space-y-1.5">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={flightTypes.transitDomestic}
-                    onChange={() => toggle('transitDomestic')}
-                    className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                    checked={flightTypes.transitDomesticOvernight}
+                    onChange={() => toggle('transitDomesticOvernight')}
+                    className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                   />
-                  <span className="text-sm text-gray-700">Transit Domestik</span>
+                  <span className="text-xs text-gray-600">Menginap</span>
                 </label>
-              </div>
-              
-              {flightTypes.transitDomestic && domesticExpanded && (
-                <div className="ml-6 mt-2 space-y-1.5">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={flightTypes.transitDomesticOvernight}
-                      onChange={() => toggle('transitDomesticOvernight')}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">Menginap</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={flightTypes.transitDomesticNoOvernight}
-                      onChange={() => toggle('transitDomesticNoOvernight')}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">Tidak Menginap</span>
-                  </label>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setInternationalExpanded(!internationalExpanded)}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
-                >
-                  <ChevronDown className={`w-3 h-3 transition-transform ${internationalExpanded ? 'rotate-0' : '-rotate-90'}`} />
-                </button>
-                <label className="flex items-center gap-2 cursor-pointer flex-1">
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={flightTypes.transitInternational}
-                    onChange={() => toggle('transitInternational')}
-                    className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                    checked={flightTypes.transitDomesticNoOvernight}
+                    onChange={() => toggle('transitDomesticNoOvernight')}
+                    className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                   />
-                  <span className="text-sm text-gray-700">Transit Internasional</span>
+                  <span className="text-xs text-gray-600">Tidak Menginap</span>
                 </label>
-              </div>
-              
-              {flightTypes.transitInternational && internationalExpanded && (
-                <div className="ml-6 mt-2 space-y-1.5">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={flightTypes.transitInternationalCityTour}
-                      onChange={() => toggle('transitInternationalCityTour')}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">Ada City Tour</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={flightTypes.transitInternationalNoCityTour}
-                      onChange={() => toggle('transitInternationalNoCityTour')}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">Tanpa City Tour</span>
-                  </label>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {flightTypes.transit && !transitExpanded && (
-          <button
-            onClick={() => setTransitExpanded(true)}
-            className="ml-6 mt-1 text-xs text-emerald-600 hover:bg-emerald-50 transition flex items-center gap-1 px-2 py-1 rounded"
-          >
-            <ChevronDown className="w-3 h-3" />
-            Lihat opsi transit
-          </button>
-        )}
-
-        {flightTypes.transit && (
-          <div className="mt-2 ml-6">
-            <button
-              type="button"
-              onClick={() => setTransitAirlineExpanded(!transitAirlineExpanded)}
-              className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:text-emerald-800 transition"
-            >
-              <ChevronDown className={`w-3 h-3 transition-transform ${transitAirlineExpanded ? 'rotate-0' : '-rotate-90'}`} />
-              Pilih Maskapai ({transitAircrafts.length}/{transitAirlineOptions.length})
-            </button>
-            {transitAirlineExpanded && (
-              <div className="mt-1.5 space-y-1 pl-2 border-l-2 border-emerald-100 max-h-48 overflow-y-auto">
-                {transitAirlineOptions.map(opt => (
-                  <label key={opt.value} className="flex items-center gap-2 cursor-pointer py-0.5">
-                    <input
-                      type="checkbox"
-                      checked={transitAircrafts.includes(opt.value)}
-                      onChange={() => toggleTransitAirline(opt.value)}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-                    />
-                    <span className="text-xs text-gray-600">{opt.label}</span>
-                  </label>
-                ))}
               </div>
             )}
           </div>
-        )}
-      </div>
+
+          {/* Transit Internasional */}
+          <div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setInternationalExpanded(!internationalExpanded)}
+                className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+              >
+                <ChevronDown className={`w-3 h-3 transition-transform ${internationalExpanded ? 'rotate-0' : '-rotate-90'}`} />
+              </button>
+              <label className="flex items-center gap-2 cursor-pointer flex-1">
+                <input
+                  type="checkbox"
+                  checked={flightTypes.transitInternational}
+                  onChange={() => toggle('transitInternational')}
+                  className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                />
+                <span className="text-sm text-gray-700">Transit Internasional</span>
+              </label>
+            </div>
+            
+            {/* Sub-options for Internasional */}
+            {flightTypes.transitInternational && internationalExpanded && (
+              <div className="ml-6 mt-2 space-y-1.5">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={flightTypes.transitInternationalCityTour}
+                    onChange={() => toggle('transitInternationalCityTour')}
+                    className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span className="text-xs text-gray-600">Ada City Tour</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={flightTypes.transitInternationalNoCityTour}
+                    onChange={() => toggle('transitInternationalNoCityTour')}
+                    className="w-3.5 h-3.5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                  />
+                  <span className="text-xs text-gray-600">Tanpa City Tour</span>
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Show expand button if transit is checked but section is collapsed */}
+      {flightTypes.transit && !transitExpanded && (
+        <button
+          onClick={() => setTransitExpanded(true)}
+          className="w-full px-3 py-2 text-xs text-emerald-600 hover:bg-emerald-50 transition flex items-center justify-center gap-1"
+        >
+          <ChevronDown className="w-3 h-3" />
+          Lihat opsi transit
+        </button>
+      )}
     </div>
   );
 }
@@ -933,26 +860,28 @@ function FlightTypeSelector({ flightTypes, onChange, directAircrafts, transitAir
 // ============ FILTER PACKAGES FUNCTION ============
 function filterPackages(filters: Filters, packages: Package[]): Package[] {
   return packages.filter(pkg => {
+    // Date range filter
     if (filters.departureDateStart && filters.departureDateEnd) {
       if (pkg.departureDate < filters.departureDateStart || pkg.departureDate > filters.departureDateEnd) return false;
     }
 
-    if (filters.travelDays.length > 0) {
-      const d = pkg.travelDays;
-      const match = filters.travelDays.some(range => {
-        switch (range) {
-          case '3-8': return d >= 3 && d <= 8;
-          case '9-11': return d >= 9 && d <= 11;
-          case '12-14': return d >= 12 && d <= 14;
-          case '15-16': return d >= 15 && d <= 16;
-          case '17-30': return d >= 17 && d <= 30;
-          case '31-45': return d >= 31 && d <= 45;
-          default: return false;
-        }
-      });
-      if (!match) return false;
-    }
-
+      // Travel days filter (multi-select)
+      if (filters.travelDays.length > 0) {
+        const d = pkg.travelDays;
+        const match = filters.travelDays.some((range: string) => {
+          switch (range) {
+            case '3-8': return d >= 3 && d <= 8;
+            case '9-11': return d >= 9 && d <= 11;
+            case '12-14': return d >= 12 && d <= 14;
+            case '15-16': return d >= 15 && d <= 16;
+            case '17-30': return d >= 17 && d <= 30;
+            case '31-45': return d >= 31 && d <= 45;
+            default: return false;
+          }
+        });
+        if (!match) return false;
+      }
+    // Flight type filter
     const ft = filters.flightTypes;
     const anySelected = ft.direct || ft.transitDomesticOvernight || ft.transitDomesticNoOvernight ||
       ft.transitInternationalCityTour || ft.transitInternationalNoCityTour;
@@ -967,28 +896,27 @@ function filterPackages(filters: Filters, packages: Package[]): Package[] {
       if (!match) return false;
     }
 
+    // Airport filter (multi-select)
     if (filters.airports.length > 0) {
       if (!filters.airports.includes(pkg.airportCode)) return false;
     }
 
+    // Saudi Route filter (multi-select)
     if (filters.saudiRoutes.length > 0) {
       if (!filters.saudiRoutes.includes(pkg.saudiRoute)) return false;
     }
 
-    if (pkg.transitType === 'direct') {
-      if (filters.directAircrafts.length > 0 && filters.directAircrafts.length < directFlightAirlines.length) {
-        if (!filters.directAircrafts.includes(pkg.aircraft)) return false;
-      }
-    } else {
-      if (filters.transitAircrafts.length > 0 && filters.transitAircrafts.length < airlines.length) {
-        if (!filters.transitAircrafts.includes(pkg.aircraft)) return false;
-      }
+    // Aircraft filter (multi-select)
+    if (filters.aircrafts.length > 0) {
+      if (!filters.aircrafts.includes(pkg.aircraft)) return false;
     }
 
+    // Travel brand filter (multi-select)
     if (filters.travelBrands.length > 0) {
       if (!filters.travelBrands.includes(pkg.travelBrand)) return false;
     }
 
+    // Makkah hotel filter
     if (filters.makkahHotel.mode === 'name' && filters.makkahHotel.names.length > 0) {
       if (!filters.makkahHotel.names.includes(pkg.makkahHotel.name)) return false;
       
@@ -1003,6 +931,7 @@ function filterPackages(filters: Filters, packages: Package[]): Package[] {
       if (pkg.makkahHotel.distance < filters.makkahHotel.distanceMin || pkg.makkahHotel.distance > filters.makkahHotel.distanceMax) return false;
     }
 
+    // Madinah hotel filter
     if (filters.madinahHotel.mode === 'name' && filters.madinahHotel.names.length > 0) {
       if (!filters.madinahHotel.names.includes(pkg.madinahHotel.name)) return false;
       
@@ -1024,15 +953,12 @@ function filterPackages(filters: Filters, packages: Package[]): Package[] {
 // ============ MAIN APP ============
 function App() {
   const [page, setPage] = useState<Page>('landing');
-  const [filters, setFilters] = useState<Filters>({
-    ...defaultFilters,
-    directAircrafts: directFlightAirlines,
-    transitAircrafts: airlines.map(al => al.name),
-  });
+  const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [sortBy, setSortBy] = useState<SortOption>('price-asc');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const handleSearch = () => {
+    // Validation: departure date and travel days are required
     if (!filters.departureDateStart || !filters.departureDateEnd) {
       alert('Silakan pilih rentang tanggal keberangkatan');
       return;
@@ -1155,15 +1081,12 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
   };
 
   const handleResetFilters = () => {
-    setFilters({
-      ...defaultFilters,
-      directAircrafts: directFlightAirlines,
-      transitAircrafts: airlines.map(al => al.name),
-    });
+    setFilters(defaultFilters);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Top Bar */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -1197,13 +1120,14 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
             </div>
           </div>
 
+          {/* Quick Filters Bar */}
           <div className="hidden lg:flex items-center gap-2 flex-wrap">
             <QuickFilter label="Durasi" value={filters.travelDays.length > 0 ? `${filters.travelDays.length} pilihan` : '-'} />
             <QuickFilter label="Tanggal" value={filters.departureDateStart ? `${formatDateShort(filters.departureDateStart)} - ${formatDateShort(filters.departureDateEnd)}` : '-'} />
             <QuickFilter label="Penerbangan" value={getTransitLabel(filters.flightTypes)} />
             <QuickFilter label="B. Berangkat" value={filters.airports.length > 0 ? `${filters.airports.length} bandara` : 'Semua'} />
             <QuickFilter label="Rute Saudi" value={filters.saudiRoutes.length > 0 ? `${filters.saudiRoutes.length} rute` : 'Semua'} />
-            <QuickFilter label="Maskapai" value={`${filters.directAircrafts.length} langsung / ${filters.transitAircrafts.length} transit`} />
+            <QuickFilter label="Maskapai" value={filters.aircrafts.length > 0 ? `${filters.aircrafts.length} maskapai` : 'Semua'} />
             <QuickFilter label="Travel" value={filters.travelBrands.length > 0 ? `${filters.travelBrands.length} travel` : 'Semua'} />
             <QuickFilter label="Hotel Makkah" value={getHotelLabel(filters.makkahHotel, makkahHotels)} />
             <QuickFilter label="Hotel Madinah" value={getHotelLabel(filters.madinahHotel, madinahHotels)} />
@@ -1213,6 +1137,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex gap-6" style={{ minHeight: 'calc(100vh - 140px)' }}>
+          {/* Side Filters */}
           <aside className={`
             ${showMobileFilters ? 'fixed inset-0 z-50 bg-white overflow-y-auto p-4' : 'hidden'}
             lg:block lg:w-80 lg:flex-shrink-0
@@ -1241,6 +1166,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                 </div>
 
                 <div className="space-y-4">
+                  {/* 1. Tanggal & Durasi */}
                   <FilterSection icon={<Calendar className="w-4 h-4 text-emerald-600" />} label="Tanggal & Durasi">
                     <div className="space-y-3">
                       <div>
@@ -1273,19 +1199,18 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                     </div>
                   </FilterSection>
 
-                  <FilterSection icon={<Plane className="w-4 h-4 text-emerald-600" />} label="Tipe Penerbangan & Maskapai">
+                  {/* 3. Tipe Penerbangan */}
+                  <FilterSection icon={<Plane className="w-4 h-4 text-emerald-600" />} label="Tipe Penerbangan">
                     <FlightTypeSelector
                       flightTypes={filters.flightTypes}
                       onChange={ft => setFilters(f => ({ ...f, flightTypes: ft }))}
-                      directAircrafts={filters.directAircrafts}
-                      transitAircrafts={filters.transitAircrafts}
-                      onDirectAircraftsChange={val => setFilters(f => ({ ...f, directAircrafts: val }))}
-                      onTransitAircraftsChange={val => setFilters(f => ({ ...f, transitAircrafts: val }))}
                     />
                   </FilterSection>
 
+                  {/* 4. Pilihan Bandara */}
                   <FilterSection icon={<MapPin className="w-4 h-4 text-emerald-600" />} label="Pilihan Bandara">
                     <div className="space-y-3">
+                      {/* A. Bandara Berangkat */}
                       <div>
                         <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛫 Bandara Berangkat</label>
                         <SearchableMultiSelect
@@ -1297,6 +1222,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                         />
                       </div>
                       
+                      {/* B. Bandara Saudi - Landing & Pulang */}
                       <div>
                         <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛬 Bandara Saudi - Landing & Pulang</label>
                         <SearchableMultiSelect
@@ -1316,6 +1242,18 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                     </div>
                   </FilterSection>
 
+                  {/* 5. Maskapai */}
+                  <FilterSection icon={<Plane className="w-4 h-4 text-emerald-600" />} label="Maskapai Penerbangan">
+                    <SearchableMultiSelect
+                      options={airlines.map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }))}
+                      selected={filters.aircrafts}
+                      onChange={val => setFilters(f => ({ ...f, aircrafts: val }))}
+                      placeholder="Pilih maskapai"
+                      label="Maskapai"
+                    />
+                  </FilterSection>
+
+                  {/* 6. Nama Travel */}
                   <FilterSection icon={<Building2 className="w-4 h-4 text-emerald-600" />} label="Nama Travel">
                     <TravelSelect
                       selected={filters.travelBrands}
@@ -1324,6 +1262,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
                   </FilterSection>
                 </div>
 
+                {/* Hotel Filters */}
                 <div className="border-t border-gray-100 pt-6">
                   <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-emerald-600" />
@@ -1359,7 +1298,9 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
             </div>
           </aside>
 
+          {/* Main Content */}
           <main className="flex-1">
+            {/* Sort Bar */}
             <div className="bg-white rounded-xl shadow-sm p-4 mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Urutkan:</span>
@@ -1379,6 +1320,7 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
               </span>
             </div>
 
+            {/* Results */}
             {results.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1400,6 +1342,252 @@ function ResultsPage({ filters, setFilters, results, totalResults, sortBy, setSo
           </main>
         </div>
       </div>
+
+      {/* Mobile Filter Overlay */}
+      {showMobileFilters && (
+        <div className="lg:hidden">
+          <div className="fixed inset-0 z-40 bg-white overflow-y-auto p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 text-lg">Filter Pencarian</h3>
+              <button onClick={() => setShowMobileFilters(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Tanggal & Durasi */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">📅 Tanggal & Durasi</label>
+                <DateRangePicker
+                  startDate={filters.departureDateStart}
+                  endDate={filters.departureDateEnd}
+                  onStartDateChange={d => setFilters(f => ({ ...f, departureDateStart: d }))}
+                  onEndDateChange={d => setFilters(f => ({ ...f, departureDateEnd: d }))}
+                  travelDays={filters.travelDays}
+                />
+                <div className="mt-3">
+                  <MultiSelect
+                    options={[
+                      { value: '3-8', label: '3-8 Hari', highlight: true },
+                      { value: '9-11', label: '9-11 Hari', highlight: true },
+                      { value: '12-14', label: '12-14 Hari' },
+                      { value: '15-16', label: '15-16 Hari' },
+                      { value: '17-30', label: '17-30 Hari' },
+                      { value: '31-45', label: '31-45 Hari' },
+                    ]}
+                    selected={filters.travelDays}
+                    onChange={val => setFilters(f => ({ ...f, travelDays: val }))}
+                    placeholder="Pilih durasi"
+                    label="Durasi"
+                  />
+                </div>
+              </div>
+
+              {/* Tipe Penerbangan */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">✈️ Tipe Penerbangan</label>
+                <FlightTypeSelector
+                  flightTypes={filters.flightTypes}
+                  onChange={ft => setFilters(f => ({ ...f, flightTypes: ft }))}
+                />
+              </div>
+
+              {/* Pilihan Bandara */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">🗺️ Pilihan Bandara</label>
+                <div className="space-y-3">
+                  {/* A. Bandara Berangkat */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛫 Bandara Berangkat</label>
+                    <SearchableMultiSelect
+                      options={airports.map(apt => ({ value: apt.code, label: `${apt.code} - ${apt.city}` }))}
+                      selected={filters.airports}
+                      onChange={val => setFilters(f => ({ ...f, airports: val }))}
+                      placeholder="Pilih bandara"
+                      label="Bandara"
+                    />
+                  </div>
+                  
+                  {/* B. Bandara Landing Saudi */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">🛬 Bandara Saudi - Landing & Pulang</label>
+                    <SearchableMultiSelect
+                      options={[
+                        { value: 'JED - MED (Makkah Dulu)', label: 'JED - MED (Makkah Dulu)' },
+                        { value: 'MED - JED (Madinah Dulu)', label: 'MED - JED (Madinah Dulu)' },
+                        { value: 'JED - JED (Makkah Dulu)', label: 'JED - JED (Makkah Dulu)' },
+                        { value: 'JED - JED (Madinah Dulu)', label: 'JED - JED (Madinah Dulu)' },
+                        { value: 'Lainnya', label: 'Lainnya' }
+                      ]}
+                      selected={filters.saudiRoutes}
+                      onChange={val => setFilters(f => ({ ...f, saudiRoutes: val }))}
+                      placeholder="Pilih rute Saudi"
+                      label="Rute Saudi"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Maskapai */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">🛩️ Maskapai</label>
+                <SearchableMultiSelect
+                  options={airlines.map(al => ({ value: al.name, label: `${al.name} - ${al.iata}` }))}
+                  selected={filters.aircrafts}
+                  onChange={val => setFilters(f => ({ ...f, aircrafts: val }))}
+                  placeholder="Pilih maskapai"
+                  label="Maskapai"
+                />
+              </div>
+
+              {/* Nama Travel */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">🏢 Nama Travel</label>
+                <TravelSelect
+                  selected={filters.travelBrands}
+                  onChange={val => setFilters(f => ({ ...f, travelBrands: val }))}
+                />
+              </div>
+
+              {/* Hotel Makkah */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">🕋 Hotel Makkah</label>
+                <div className="flex gap-1 mb-2">
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, mode: 'stars' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.makkahHotel.mode === 'stars' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Bintang
+                  </button>
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, mode: 'distance' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.makkahHotel.mode === 'distance' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Jarak
+                  </button>
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, mode: 'name' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.makkahHotel.mode === 'name' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Nama
+                  </button>
+                </div>
+
+                {filters.makkahHotel.mode === 'stars' && (
+                  <MultiSelect
+                    options={[
+                      { value: '5', label: '⭐⭐⭐⭐⭐ Bintang 5' },
+                      { value: '4', label: '⭐⭐⭐⭐ Bintang 4' },
+                      { value: '3', label: '⭐⭐⭐ Bintang 3' },
+                      { value: '2', label: '⭐⭐ Bintang 2' },
+                      { value: '1', label: '⭐ Bintang 1' },
+                      { value: 'Apartemen', label: '🏢 Apartemen' },
+                    ]}
+                    selected={filters.makkahHotel.stars}
+                    onChange={val => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, stars: val } }))}
+                    placeholder="Pilih bintang"
+                    label="Bintang"
+                  />
+                )}
+
+                {filters.makkahHotel.mode === 'distance' && (
+                  <RangeSlider
+                    min={0}
+                    max={2000}
+                    valueMin={filters.makkahHotel.distanceMin}
+                    valueMax={filters.makkahHotel.distanceMax}
+                    onChange={(min, max) => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, distanceMin: min, distanceMax: max } }))}
+                    suffix="m"
+                  />
+                )}
+
+                {filters.makkahHotel.mode === 'name' && (
+                  <SearchableMultiSelect
+                    options={makkahHotels.map(h => ({ value: h.name, label: h.name }))}
+                    selected={filters.makkahHotel.names}
+                    onChange={val => setFilters(f => ({ ...f, makkahHotel: { ...f.makkahHotel, names: val } }))}
+                    placeholder="Pilih hotel"
+                    label="Hotel"
+                  />
+                )}
+              </div>
+
+              {/* Hotel Madinah */}
+              <div>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">🕌 Hotel Madinah</label>
+                <div className="flex gap-1 mb-2">
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, mode: 'stars' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.madinahHotel.mode === 'stars' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Bintang
+                  </button>
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, mode: 'distance' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.madinahHotel.mode === 'distance' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Jarak
+                  </button>
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, mode: 'name' } }))}
+                    className={`px-2 py-1 text-xs rounded font-medium ${filters.madinahHotel.mode === 'name' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  >
+                    Nama
+                  </button>
+                </div>
+
+                {filters.madinahHotel.mode === 'stars' && (
+                  <MultiSelect
+                    options={[
+                      { value: '5', label: '⭐⭐⭐⭐⭐ Bintang 5' },
+                      { value: '4', label: '⭐⭐⭐⭐ Bintang 4' },
+                      { value: '3', label: '⭐⭐⭐ Bintang 3' },
+                      { value: '2', label: '⭐⭐ Bintang 2' },
+                      { value: '1', label: '⭐ Bintang 1' },
+                      { value: 'Apartemen', label: '🏢 Apartemen' },
+                    ]}
+                    selected={filters.madinahHotel.stars}
+                    onChange={val => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, stars: val } }))}
+                    placeholder="Pilih bintang"
+                    label="Bintang"
+                  />
+                )}
+
+                {filters.madinahHotel.mode === 'distance' && (
+                  <RangeSlider
+                    min={0}
+                    max={2000}
+                    valueMin={filters.madinahHotel.distanceMin}
+                    valueMax={filters.madinahHotel.distanceMax}
+                    onChange={(min, max) => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, distanceMin: min, distanceMax: max } }))}
+                    suffix="m"
+                  />
+                )}
+
+                {filters.madinahHotel.mode === 'name' && (
+                  <SearchableMultiSelect
+                    options={madinahHotels.map(h => ({ value: h.name, label: h.name }))}
+                    selected={filters.madinahHotel.names}
+                    onChange={val => setFilters(f => ({ ...f, madinahHotel: { ...f.madinahHotel, names: val } }))}
+                    placeholder="Pilih hotel"
+                    label="Hotel"
+                  />
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button onClick={handleResetFilters} className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                  Reset
+                </button>
+                <button onClick={() => setShowMobileFilters(false)} className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition">
+                  Terapkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1485,6 +1673,7 @@ function HotelFilter({ label, hotel, hotels, onChange }: {
   );
 }
 
+// ============ PACKAGE CARD ============
 function PackageCard({ pkg }: { pkg: Package }) {
   const [showInfo, setShowInfo] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -1593,6 +1782,7 @@ function PackageCard({ pkg }: { pkg: Package }) {
         </div>
       </div>
 
+      {/* Detail Popup */}
       {showInfo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowInfo(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
